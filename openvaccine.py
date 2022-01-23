@@ -145,6 +145,23 @@ else:
     input.predicted_loop_type = input_loop_type
     input.seq_length = len(input_seq)
 
+@st.cache
+def load_model():
+
+    save_dest = Path('model')
+    save_dest.mkdir(exist_ok=True)
+    
+    f_checkpoint = Path("model/model_0.pt")
+
+    if not f_checkpoint.exists():
+        with st.spinner("Downloading model... this may take awhile! \n Don't stop it!"):
+            from GD_download import download_file_from_google_drive
+            download_file_from_google_drive('1V8EecM-IwkROmMrSMilvBV65remIt7mw', f_checkpoint)
+    
+    model = torch.load(f_checkpoint, map_location=device)
+    model.eval()
+    return model
+
 if ((len(input['sequence'][0]) > 1) and (len(input['sequence'][0]) == len(input['structure'][0])) and (len(input['sequence'][0]) == len(input['predicted_loop_type'][0]))):
     st.write(input[['sequence', 'structure', 'predicted_loop_type', 'seq_length']])
 
@@ -164,27 +181,28 @@ if ((len(input['sequence'][0]) > 1) and (len(input['sequence'][0]) == len(input[
         # pri_loader = create_loader(private_df, BATCH_SIZE, is_test=True)
         pred_df_list = []
         c = 0
-        for fold in range(5):
-            model_load_path = f"./models/model-{fold}.pt"
-            ae_model0 = AEModel()
-            ae_model1 = AEModel()
-            model_pub = FromAeModel(pred_len=107, seq=ae_model0.seq)
-            model_pub = model_pub.to(device)
-            # model_pri = FromAeModel(pred_len=130, seq=ae_model1.seq)
-            # model_pri = model_pri.to(device)
-            state_dict = torch.load(model_load_path, map_location=device)
-            model_pub.load_state_dict(state_dict)
-            # model_pri.load_state_dict(state_dict)
-            del state_dict
+        # for fold in range(1):
+        model_load_path = load_model()
+        # model_load_path = f"./models/model-{fold}.pt"
+        ae_model0 = AEModel()
+        ae_model1 = AEModel()
+        model_pub = FromAeModel(pred_len=107, seq=ae_model0.seq)
+        model_pub = model_pub.to(device)
+        # model_pri = FromAeModel(pred_len=130, seq=ae_model1.seq)
+        # model_pri = model_pri.to(device)
+        state_dict = torch.load(model_load_path, map_location=device)
+        model_pub.load_state_dict(state_dict)
+        # model_pri.load_state_dict(state_dict)
+        del state_dict
 
-            data_list = []
-            data_list += predict_data(model_pub, pub_loader, device, BATCH_SIZE)
-            # data_list += predict_data(model_pri, pri_loader, device, BATCH_SIZE)
-            pred_df = pd.DataFrame(data_list, columns=["id_seqpos"] + target_cols)
-            print(pred_df.head())
-            print(pred_df.tail())
-            pred_df_list.append(pred_df)
-            c += 1
+        data_list = []
+        data_list += predict_data(model_pub, pub_loader, device, BATCH_SIZE)
+        # data_list += predict_data(model_pri, pri_loader, device, BATCH_SIZE)
+        pred_df = pd.DataFrame(data_list, columns=["id_seqpos"] + target_cols)
+        print(pred_df.head())
+        print(pred_df.tail())
+        pred_df_list.append(pred_df)
+        c += 1
         data_dic = dict(id_seqpos=pred_df_list[0]["id_seqpos"])
         for col in target_cols:
             vals = np.zeros(pred_df_list[0][col].shape[0])
