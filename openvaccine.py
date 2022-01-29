@@ -145,7 +145,7 @@ else:
     input.predicted_loop_type = input_loop_type
     input.seq_length = len(input_seq)
 
-@st.cache
+@st.cache(allow_output_mutation=True)
 def load_model():
 
     save_dest = Path('model')
@@ -159,7 +159,7 @@ def load_model():
             download_file_from_google_drive('1V8EecM-IwkROmMrSMilvBV65remIt7mw', f_checkpoint)
     
     model = torch.load(f_checkpoint, map_location=device)
-    model.eval()
+    # model.eval()
     return model
 
 if ((len(input['sequence'][0]) > 1) and (len(input['sequence'][0]) == len(input['structure'][0])) and (len(input['sequence'][0]) == len(input['predicted_loop_type'][0]))):
@@ -190,10 +190,11 @@ if ((len(input['sequence'][0]) > 1) and (len(input['sequence'][0]) == len(input[
         model_pub = model_pub.to(device)
         # model_pri = FromAeModel(pred_len=130, seq=ae_model1.seq)
         # model_pri = model_pri.to(device)
-        state_dict = torch.load(model_load_path, map_location=device)
-        model_pub.load_state_dict(state_dict)
+        # state_dict = torch.load(model_load_path, map_location=device)
+        model_pub.load_state_dict(model_load_path)
+        # model_pub.load_state_dict(state_dict)
         # model_pri.load_state_dict(state_dict)
-        del state_dict
+        # del state_dict
 
         data_list = []
         data_list += predict_data(model_pub, pub_loader, device, BATCH_SIZE)
