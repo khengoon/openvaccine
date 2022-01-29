@@ -45,7 +45,7 @@ st.markdown('Improving the stability of mRNA vaccines was a problem that was bei
 
 # import data
 train_data = pd.read_json('train.json', lines=True)
-test_data = pd.read_json('models/test.json', lines=True)
+test_data = pd.read_json('test.json', lines=True)
 sub = pd.read_csv('sample_submission.csv')
 
 st.write("Train shapes: ", train_data.shape)
