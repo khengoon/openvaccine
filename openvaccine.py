@@ -119,7 +119,7 @@ def predict_data(model, loader, device, batch_size):
     assert len(data_list) == expected_length, f"len = {len(data_list)} expected = {expected_length}"
     return data_list
 
-input_test = pd.read_json(f'models/test.json', lines=True)
+input_test = pd.read_json(f'test.json', lines=True)
 st.write(input_test.head(1))
 input_temp = input_test.iloc[0:1,:].copy()
 st.write(input_temp)
