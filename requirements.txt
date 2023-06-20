@@ -11,4 +11,4 @@ torch==1.10.0+cpu
 graphviz==0.18.2
 scikit-learn==1.0.1
 fastprogress
-streamlit-lottie
+streamlit-lottie==0.0.3
