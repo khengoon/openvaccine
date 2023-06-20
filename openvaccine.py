@@ -16,7 +16,7 @@ from collections import OrderedDict
 from model import *
 from fastprogress import progress_bar
 from utils import lottie_vaccine
-from streamlit_lottie import st_lottie
+# from streamlit_lottie import st_lottie
 
 import functools
 
@@ -24,7 +24,7 @@ import functools
 
 ################################################################################
 
-st_lottie(lottie_vaccine, height=200)
+# st_lottie(lottie_vaccine, height=200)
 
 
 st.title('Stanford covid vaccine')
